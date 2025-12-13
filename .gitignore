@@ -1,0 +1,16 @@
+# 專案根目錄下的虛擬環境資料夾
+venv/
+
+# 使用 Anaconda/Miniconda 的環境資料夾
+.conda/
+.env/
+
+# Python 編譯和暫存檔案
+__pycache__/
+*.pyc
+*.pyd
+*.so
+
+# 作業系統暫存檔案
+.DS_Store # macOS
+Thumbs.db # Windows
