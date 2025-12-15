@@ -1,0 +1,17 @@
+# --- 核心模型框架 ---
+# 確保版本夠新以支援 YOLO11 (建議 >= 8.3.0)
+ultralytics>=8.3.0
+
+# --- 模型轉換工具 (Export) ---
+# 用於轉換成 TFLite
+tensorflow
+
+# 中間格式 (PyTorch -> ONNX -> TFLite 流程若出錯，這是救星)
+onnx>=1.14.0
+
+# --- [強烈建議新增] ---
+# 用於簡化 ONNX 模型結構，能大幅降低手機 App 閃退機率
+onnxsim
+
+# 視覺化工具 (選用)，可以用來開啟 .tflite 或 .onnx 檢查模型架構
+netron
