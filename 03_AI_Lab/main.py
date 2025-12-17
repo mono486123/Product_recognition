@@ -58,13 +58,13 @@ def augment_dataset_by_flipping(data_root):
 
 def train_grocery_model():
     # --- 1. 專案設定 ---
-    PROJECT_NAME = 'grocery_recognition_v1_Augmented'
+    PROJECT_NAME = 'grocery_recognition_v1_Augmented_fake_background'
     DATA_ROOT = "03_AI_Lab/yolo11_data"  # 資料集根目錄
     DATA_YAML_PATH = os.path.join(DATA_ROOT, "data.yaml")
     MODEL_TYPE = "03_AI_Lab/yolo11n.pt"
     EPOCHS = 100
     IMG_SIZE = 640
-    BATCH_SIZE = 16
+    BATCH_SIZE = 8
 
     # --- 2. 執行手動資料擴充 ---
     # 在訓練開始前，先把資料翻倍
@@ -85,6 +85,7 @@ def train_grocery_model():
         epochs=EPOCHS,
         imgsz=IMG_SIZE,
         batch=BATCH_SIZE,
+        workers=1,
         project='03_AI_Lab/runs/train',
         name=PROJECT_NAME,
         patience=20,
@@ -92,7 +93,7 @@ def train_grocery_model():
         device=0,
         # 內建增強也開著，加強效果
         degrees=15.0,
-        blur=0.1,
+        #blur=0.1,
         mosaic=1.0
     )
 

@@ -433,3 +433,142 @@ git add 03_AI_Lab -n
 
 
 
+
+
+
+您好！這是 Git 的一個非常重要的警告，它揭示了您專案結構中的一個 重大問題！
+
+這個警告 warning: adding embedded git repository: 03_AI_Lab 告訴我們：
+
+您的 03_AI_Lab 資料夾本身就是一個獨立的 Git 倉庫。
+
+這意味著：
+
+您在專案根目錄 D:\product_recognition\ 執行了 git init (外部倉庫)。
+
+您在 D:\product_recognition\03_AI_Lab\ 資料夾內也執行了一次 git init (內部倉庫)。
+
+Git 現在看到一個倉庫裡面包著另一個倉庫，這會導致未來協作和版本控制上非常大的困擾。
+
+🚨 緊急處理步驟 (二選一)
+在這種情況下，您必須決定 03_AI_Lab 內的程式碼應該如何被管理。
+
+選項 A (推薦：將所有程式碼納入主倉庫)
+這是最常見且最簡單的 R&D 專案管理方式，讓所有程式碼都在同一個 Git 歷史中。
+
+操作：刪除內部 Git 記錄
+
+進入內部資料夾：
+
+Bash
+
+cd 03_AI_Lab
+刪除 .git 資料夾： 這個資料夾是讓它成為 Git 倉庫的關鍵。刪除它，它就會變成一個普通的資料夾。
+
+Bash
+
+# Windows 指令：
+rmdir /s /q .git
+
+# 或 Mac/Linux 指令 (如果您在 WSL 或 Git Bash)：
+# rm -rf .git
+返回根目錄：
+
+Bash
+
+cd ..
+再次 Add (確認)：
+
+Bash
+
+
+
+
+##不能有過多git 倉庫。
+
+
+🧭 步驟一：如何進入 WSL1. 啟動 WSL最簡單的方法： 在 Windows 的搜尋欄 (或按下 Win + S) 輸入 Ubuntu (或您安裝的 Linux 發行版名稱，例如 Debian、Kali 等)，然後點擊開啟。專業的方法： 開啟 Windows 的 PowerShell 或 命令提示字元 (CMD)，然後輸入 wsl 並按下 Enter。2. 初始位置當您啟動 WSL 時，通常會直接進入您的家目錄 (即 ~ 或 /home/kunzh)。🎯 步驟二：導航到指定目錄 (進入 product_recognition_linux)要從您的家目錄 (~) 移動到 ~/product_recognition_linux，您需要使用 cd (Change Directory) 指令。✅ 程式碼：進入目錄Bashcd product_recognition_linux
+說明： cd 後面直接接上您要進入的資料夾名稱。小技巧： 您可以輸入 cd pro 然後按下鍵盤上的 Tab 鍵。Linux 會自動為您完成名稱 (例如變成 product_recognition_linux/)，這可以避免打錯字。確認成功： 當您成功進入後，命令提示字元會變更為：kunzh@USER0408:~/product_recognition_linux$📁 步驟三：檢查目錄中的檔案一旦您進入了正確的目錄，您需要使用 ls (List) 指令來查看其中包含的檔案和子目錄。✅ 程式碼：檢查檔案清單1. 基本清單 (推薦)Bashls -l
+功能： 列出目錄中的所有檔案和資料夾，並顯示詳細資訊。-l 參數： 表示 "long listing format" (長格式清單)，它會顯示檔案的權限、擁有者、大小和修改日期。這對於檢查專案檔案非常有用。2. 顯示隱藏檔案Bashls -la
+功能： 除了長格式清單外，還會顯示隱藏檔案。-a 參數： 表示 "all"，在 Linux 中，檔名開頭是 . 的檔案或資料夾是隱藏的 (例如 .git、.gitignore)。指令目的範例輸出片段 (您專案中可能有的)cd ..返回上一級目錄kunzh@USER0408:~/$pwd顯示目前所在的完整路徑/home/kunzh/product_recognition_linuxls -l查看檔案詳細資訊-rw-r--r-- 1 kunzh kunzh 1024 Dec 14 20:00 requirements.txt🛠️ 專案常見檢查指令在 ~/product_recognition_linux$ 目錄中，您可能會想執行以下操作：檢查專案依賴 (dependencies) 檔案的內容：Bashcat requirements.txt
+cat 指令會將檔案的內容直接輸出到螢幕上。確認環境中是否已啟動虛擬環境 (如果之前未刪除)：Bashsource venv/bin/activate
+如果 venv 存在，執行後您的命令提示字元會變成 (venv) kunzh@USER0408:~/product_recognition_linux$。這些基本的 cd 和 ls 指令是您在 WSL 中高效工作的基礎！明天見！12/16
+
+
+
+
+12/17 TEST
+這完全符合 YOLO（以及所有深度學習模型） 的特性。這種現象我們稱為「領域偏移（Domain Shift）」或是「資料分佈不一致」。
+
+當你只是更換了擺設方式（例如：商品疊放、側放、光線改變、背景從木頭換成塑膠），對於模型來說，這些像素的組合與它在訓練時看到的完全不同，因此準確度會大幅下降。
+
+要解開這個「換了擺設就不認得」的卡關點，你需要從以下三個核心原理動手：
+
+一、 解決原理：提高模型的「泛化能力 (Generalization)」
+模型目前的狀態是「死背」，而不是「理解」。
+
+資料多樣性 (Data Diversity)： 模型只看過「排隊站好」的商品，沒看過「躺下」或「被遮擋」的商品。
+
+資料增強 (Data Augmentation)： 在訓練時，讓模型自動把圖片旋轉、縮放、改變亮度，模擬不同的環境。
+
+模型複雜度 (Epochs)： 你之前的訓練只跑了 1 個 Epoch，模型根本還沒學會特徵，它現在只是在「隨機亂猜」。
+
+二、 實作修正步驟
+為了讓 YOLO 變聰明，請針對你的 03_AI_Lab/train_grocery_model.py 進行以下兩項重大調整：
+
+1. 增加訓練輪數 (Epochs)
+這最關鍵。 1 輪絕對不夠，至少要讓模型看 100 次以上的資料。
+
+2. 加入資料增強參數
+在 model.train() 裡面加入一些控制項，強制模型學習不同角度的商品。
+
+請修改 train_grocery_model.py 中的 model.train 區塊：
+
+Python
+
+# --- 3. 開始訓練 (Training) ---
+print(f"🏋️ 開始訓練... (Epochs: 100)")
+try:
+    results = model.train(
+        data=DATA_YAML_PATH,
+        epochs=100,            # <--- 修正點 1: 從 1 改為 100
+        imgsz=IMG_SIZE,
+        batch=BATCH_SIZE,
+        project='03_AI_Lab/runs/train',
+        name=PROJECT_NAME,
+        patience=20,           
+        exist_ok=True,
+        device=0,
+        # --- 修正點 2: 加入資料增強參數 ---
+        degrees=15.0,         # 隨機旋轉正負 15 度 (應對擺設歪掉)
+        translate=0.1,        # 隨機平移 (應對擺放位置不同)
+        scale=0.5,            # 隨機縮放 (應對相機遠近)
+        flipud=0.5,           # 50% 機率上下翻轉 (如果商品會倒過來放)
+        fliplr=0.5,           # 50% 機率左右翻轉
+        mosaic=1.0,           # 強大的馬賽克增強，把四張圖拼在一起（對小商品很有用）
+    )
+三、 步驟解鎖流程
+如果你發現「換擺設就認不得」，請按照這個順序操作：
+
+收集更多樣的圖片：
+
+拍一些商品倒下的、側面的、疊在一起的圖片。
+
+把這些圖片標註好，放進 yolo11_data/train 裡面。
+
+執行長時間訓練：
+
+執行上面修改後的 train_grocery_model.py (跑 100 輪)。
+
+視覺化測試：
+
+訓練完後，再跑一次 predict_test.py。這時候你應該會發現，即便擺法不同，信心分數（Confidence）也會顯著提升。
+
+四、 關於版控的小提醒
+因為你接下來要進行大工程（增加圖片、跑 100 輪訓練），這會產生大量的結果檔案：
+
+千萬不要 Push runs/ 資料夾：訓練 100 輪後，runs/ 會變得很巨大。
+
+只 Push 代碼：確認你的 .gitignore 已經寫好 03_AI_Lab/runs/。
+
+接下來您可以做什麼？ 你想先修改訓練程式碼並開始跑 100 輪訓練，還是需要我幫你寫一個腳本來檢查你的資料集圖片是否夠多樣化？
