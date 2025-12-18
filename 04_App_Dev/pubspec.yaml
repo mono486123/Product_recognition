@@ -1,0 +1,47 @@
+name: product_recognition_app
+description: 雜貨店商品辨識系統 (Engineering App) - 針對 realme GT 優化
+publish_to: 'none' # 防止意外發布到公共庫
+version: 1.0.0+1
+
+environment:
+  sdk: '>=3.0.0 <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  # --- 核心功能套件 ---
+  
+  # 1. 相機控制 (用於獲取影像串流)
+  # 升級到支援 Android 14 的版本
+  camera: ^0.11.0  # 或者更高
+  onnxruntime: ^1.4.1
+  permission_handler: ^11.3.0
+  
+  # 2. 權限管理 (Android 需要請求相機權限)
+  permission_handler: ^11.3.0
+  
+  # 3. 圖片處理 (用於 Resize, Normalize)
+  # 注意：這裡使用 4.x 版本，效能較好
+  image: ^4.1.7
+  
+  # 4. ONNX Runtime (AI 模型推論引擎)
+  # 支援載入 .onnx 模型並使用 NNAPI 加速
+  onnxruntime: 1.4.1
+  
+  # 5. 路徑管理 (協助存取暫存檔等)
+  path_provider: ^2.1.2
+  path: ^1.9.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^3.0.0
+
+flutter:
+  uses-material-design: true
+
+  # --- 資源宣告 (Assets) ---
+  # ⚠️ 這裡非常重要！必須告訴 Flutter 把模型檔案打包進去
+  assets:
+    - assets/models/best.onnx
