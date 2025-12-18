@@ -1,139 +1,157 @@
-import 'dart:async';
+import 'dart:io';
+import 'dart:typed_data';
 import 'package:flutter/material.dart';
-import 'package:camera/camera.dart';
-import 'package:permission_handler/permission_handler.dart';
-
+import 'package:image_picker/image_picker.dart';
+import 'package:image/image.dart' as img;
 import 'detector_service.dart';
-import 'camera_view.dart';
-import 'utils/yolo_decoder.dart';
 
-// 商品類別名稱 (確認與 AI Lab 訓練順序一致)
-const List<String> LABELS = [
-  "Ace_T1_Wang_Pai", "Ace_T6_Wang_Pai", "BAR", "Long_Life_White_Chang_Shou_Bai", 
-  "Mai_Xiang_Black_Tea_Aluminum", "PENLAN", "Red_Label_Rice_Win_22_Medium", 
-  "Red_Label_Rice_Wine_22_Large", "Red_Label_Rice_Wine_Cooking", "Snow_Mountain_Xue_Shan"
-];
+void main() => runApp(const MaterialApp(
+  debugShowCheckedModeBanner: false,
+  home: GroceryResultPage()
+));
 
-Future<void> main() async {
-  WidgetsFlutterBinding.ensureInitialized();
-  runApp(const MaterialApp(
-    debugShowCheckedModeBanner: false,
-    home: GroceryPage()
-  ));
-}
-
-class GroceryPage extends StatefulWidget {
-  const GroceryPage({super.key});
+class GroceryResultPage extends StatefulWidget {
+  const GroceryResultPage({super.key});
   @override
-  State<GroceryPage> createState() => _GroceryPageState();
+  State<GroceryResultPage> createState() => _GroceryResultPageState();
 }
 
-class _GroceryPageState extends State<GroceryPage> {
+class _GroceryResultPageState extends State<GroceryResultPage> {
   final DetectorService _detector = DetectorService();
-  CameraController? _controller;
-  List<DetectionResult> _results = [];
-  bool _isDetecting = false;
+  final ImagePicker _picker = ImagePicker();
+  
+  File? _displayImage;
+  List<Map<String, dynamic>> _results = [];
+  bool _isProcessing = false;
 
   @override
   void initState() {
     super.initState();
-    _initialize();
+    _detector.loadModel();
   }
 
-  Future<void> _initialize() async {
-    await Future.delayed(const Duration(milliseconds: 500));
+  Future<void> _processPhoto() async {
+    final XFile? photo = await _picker.pickImage(source: ImageSource.camera);
+    if (photo == null) return;
+
+    setState(() {
+      _isProcessing = true;
+      _displayImage = File(photo.path);
+      _results = [];
+    });
+
+    final Uint8List originalBytes = await photo.readAsBytes();
+    img.Image? originalImg = img.decodeImage(originalBytes);
     
-    // 請求權限
-    Map<Permission, PermissionStatus> statuses = await [
-      Permission.camera,
-    ].request();
+    if (originalImg != null) {
+      // 暴力縮放至 640x640 給 AI
+      img.Image resizedImg = img.copyResize(originalImg, width: 640, height: 640);
+      Uint8List aiBytes = Uint8List.fromList(img.encodeJpg(resizedImg));
 
-    if (statuses[Permission.camera] != PermissionStatus.granted) {
-      print("❌ 使用者拒絕了相機權限");
-      return;
+      final results = await _detector.predictFixedImage(aiBytes);
+
+      setState(() {
+        _results = results;
+        _isProcessing = false;
+      });
     }
-
-    await _detector.loadModel();
-
-    final cameras = await availableCameras();
-    if (cameras.isEmpty) return;
-
-    _controller = CameraController(
-      cameras[0], 
-      ResolutionPreset.low, 
-      enableAudio: false,
-      imageFormatGroup: ImageFormatGroup.yuv420, // 針對 Android 優化
-    );
-
-    try {
-      await _controller!.initialize();
-      if (mounted) {
-        setState(() {});
-        // 延遲啟動串流，給系統一點反應時間
-        Future.delayed(const Duration(seconds: 1), () {
-          _controller!.startImageStream(_processCameraImage);
-        });
-      }
-    } catch (e) {
-      print("🚨 相機初始化失敗: $e");
-    }
-  }
-
-  // --- 關鍵：處理串流影像 ---
-  void _processCameraImage(CameraImage image) async {
-    if (_isDetecting) return;
-    _isDetecting = true;
-
-    try {
-      final screenSize = MediaQuery.of(context).size;
-      
-      // 呼叫 Service 進行辨識
-      final results = await _detector.predict(
-        image, 
-        screenSize.width, 
-        screenSize.height
-      );
-
-      if (mounted) {
-        setState(() {
-          _results = results;
-        });
-      }
-    } catch (e) {
-      print("⚠️ 辨識過程發生錯誤: $e");
-    } finally {
-      // 限制 Snapdragon 888 的運算頻率，每 400ms 跑一次
-      await Future.delayed(const Duration(milliseconds: 400));
-      _isDetecting = false;
-    }
-  }
-
-  @override
-  void dispose() {
-    _controller?.stopImageStream();
-    _controller?.dispose();
-    _detector.dispose();
-    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    if (_controller == null || !_controller!.value.isInitialized) {
-      return const Scaffold(
-        backgroundColor: Colors.black,
-        body: Center(child: CircularProgressIndicator(color: Colors.white)),
-      );
-    }
-
     return Scaffold(
       appBar: AppBar(
-        title: const Text("雜貨店 AI 辨識 (Android 14)"),
-        backgroundColor: Colors.green[700],
+        title: const Text("雜貨辨識清單模式"),
+        backgroundColor: Colors.blueGrey[900],
       ),
-      body: CameraView(
-        controller: _controller!,
-        results: _results,
-        labels: LABELS,
+      backgroundColor: Colors.grey[200],
+      body: Column(
+        children: [
+          // 1. 照片顯示區域 (佔畫面 40%)
+          Expanded(
+            flex: 4,
+            child: Container(
+              width: double.infinity,
+              color: Colors.black,
+              child: _displayImage != null
+                  ? Image.file(_displayImage!, fit: BoxFit.contain)
+                  : const Center(child: Text("請拍攝商品照片", style: TextStyle(color: Colors.white))),
+            ),
+          ),
+          
+          // 2. 數據輸出區域 (佔畫面 60%)
+          Expanded(
+            flex: 6,
+            child: Container(
+              padding: const EdgeInsets.all(16.0),
+              decoration: const BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+              ),
+              child: _isProcessing
+                  ? const Center(child: CircularProgressIndicator())
+                  : _results.isEmpty
+                      ? const Center(child: Text("尚未偵測到商品", style: TextStyle(fontSize: 18)))
+                      : Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            // 總結欄
+                            Container(
+                              padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+                              decoration: BoxDecoration(
+                                color: Colors.blueGrey[50],
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                  const Text("偵測結果", style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+                                  Text("共 ${_results.length} 樣", style: const TextStyle(fontSize: 18, color: Colors.blueAccent, fontWeight: FontWeight.bold)),
+                                ],
+                              ),
+                            ),
+                            const Divider(height: 30),
+                            // 詳細清單
+                            Expanded(
+                              child: ListView.separated(
+                                itemCount: _results.length,
+                                separatorBuilder: (ctx, idx) => const Divider(),
+                                itemBuilder: (ctx, idx) {
+                                  final item = _results[idx];
+                                  final double confidence = item['box'][4] * 100;
+                                  
+                                  return ListTile(
+                                    leading: CircleAvatar(
+                                      backgroundColor: Colors.blueGrey,
+                                      child: Text("${idx + 1}", style: const TextStyle(color: Colors.white)),
+                                    ),
+                                    title: Text(
+                                      item['tag'].toString().replaceAll('_', ' '),
+                                      style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
+                                    ),
+                                    trailing: Text(
+                                      "${confidence.toStringAsFixed(1)}%",
+                                      style: TextStyle(
+                                        fontSize: 16,
+                                        color: confidence > 50 ? Colors.green : Colors.orange,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                  );
+                                },
+                              ),
+                            ),
+                          ],
+                        ),
+            ),
+          ),
+        ],
+      ),
+      floatingActionButton: FloatingActionButton.extended(
+        onPressed: _processPhoto,
+        label: const Text("拍商品拍照辨識"),
+        icon: const Icon(Icons.camera_alt),
+        backgroundColor: Colors.blueGrey[900],
       ),
     );
   }
