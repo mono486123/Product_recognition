@@ -1,80 +1,77 @@
-🛒 Collaborative Grocery Item Processing and Recognition System
-This repository serves as the central hub for our multi-user project focused on processing sales data (CSV/Excel) and developing a mobile-friendly grocery item recognition model.
+# 🛒 雜貨店商品辨識與數據處理系統 (Mobile-Friendly)
 
-🎯 Overview and Goal
-The primary goals of this project are:
+這是一個多方協作專案，整合了銷售數據分析 (CSV/Excel)、AI 深度學習模型訓練 (YOLO/ONNX)，以及專為 Android 設備優化的商品辨識 App。
 
-To establish a robust, version-controlled system for collaborative data handling (sales figures, budgets).
+## 🎯 核心目標
+1. **數據協作**：建立版本控制系統，處理銷售額與預算數據。
+2. **AI 辨識**：開發能精準辨識雜貨商品的 YOLO 模型，並轉換為 ONNX/TFLite 格式。
+3. **App 實作**：開發具備「靜態拍照偵測」模式的 App，解決行動裝置效能瓶頸。
 
-To develop a working deep learning model capable of accurately identifying items from photos taken by mobile devices.
+## 🚀 專案亮點 (Key Features)
+* **硬體優化**：針對 Realme GT 等高畫質連拍機型實作「影像串流模式」，解決 OOM (記憶體溢出) 崩潰問題。
+* **相容性強化**：全面適應 Android 14 (API 34) 權限規範。
+* **跨平台部署**：支援 ONNX 與 TFLite 雙引擎推論。
 
-🚀 Getting Started (設定環境)
-Follow these steps to clone the repository and set up your local environment for data processing and model development.
+## 📂 專案結構 (Project Structure)
+本專案採用標準化分層管理，確保路徑在不同開發者環境下皆能運行。
 
-1. Clone the Repository
-Bash
-
-git clone <Your_GitHub_Repository_URL>
-cd <your-project-folder>
-2. Install Git LFS (Large File Storage)
-Since we manage large CSV and Excel files, you must install Git LFS to handle them correctly.
-
-Bash
-
-# Install Git LFS (if you haven't already)
-git lfs install
-
-# Pull the actual large files (instead of just the pointers)
-git lfs pull
-3. Setup Python Environment
-We recommend using a virtual environment (venv or conda).
-
-Bash
-
-# Create and activate a virtual environment
-python -m venv venv
-source venv/bin/activate  # On Windows: .\venv\Scripts\activate
-
-# Install required packages
-pip install -r requirements.txt
-(Note: Ensure you create a requirements.txt listing all necessary packages like pandas, openpyxl, pathlib, etc.)
-
-📂 Project Structure
-This project uses a standardized structure to ensure relative paths work correctly across all systems.
-
+```text
 .
-├── data/                       # Contains all RAW and PROCESSED data files
-│   ├── raw_sales.csv (LFS)
-│   └── budget_Q1.xlsx (LFS)
-├── src/                        # Contains all Python scripts
-│   ├── data_cleaning.py
-│   └── model_training.py
-├── notebooks/                  # Experimental Jupyter Notebooks
-├── models/                     # Trained model weights and configuration
-├── requirements.txt            # Python dependencies
+├── 01_PM_Office/          # 專案管理與需求文件
+├── 02_Design_Studio/      # UI/UX 設計資源
+├── 03_AI_Lab/             # AI 模型訓練中心
+│   ├── main.py            # YOLO 訓練腳本
+│   ├── export_tflite.py   # 模型轉換工具
+│   └── 研發部門筆記.txt    # 訓練心得與參數紀錄
+├── 04_App_Dev/            # Flutter 行動應用程式
+│   ├── assets/models/     # 存放 best.onnx, best.tflite
+│   ├── lib/               # Flutter 原始碼 (包含 yolo_decoder)
+│   └── 軟體部筆記.txt      # 設備相容性與修復紀錄
+├── Data/                  # 原始數據集 (不進 Git)
 └── README.md
-💻 Data Handling and Path Guidance (協作重點！)
-Crucial for multi-user compatibility: All scripts within the src/ folder must use relative paths based on the project root (e.g., data/raw_sales.csv). Do not use absolute paths like D:\project\data\....
+🛠️ 環境設定 (Setup)
+1. Python 環境 (AI 訓練)
+Bash
 
-We utilize Python's pathlib module for robust path handling (refer to src/data_cleaning.py for examples).
+python -m venv venv
+# Windows:
+.\venv\Scripts\activate
+pip install -r 03_AI_Lab/requirements.txt
+2. Flutter 環境 (App 開發)
+確保已安裝 Flutter SDK (3.x 以上版本)。
 
-🤝 Contributing (協作流程)
-Pull the latest changes before starting work: git pull.
+進入目錄並獲取套件：
 
-Create a new branch for your feature or fix: git checkout -b feature/<your-feature-name>.
+Bash
 
-Commit your changes regularly with clear messages.
+cd 04_App_Dev
+flutter pub get
+🤝 協作規範 (Collaborative Guidelines)
+路徑處理：嚴禁使用絕對路徑（如 D:\...），請統一使用 Python pathlib 處理相對路徑。
 
-Push your branch: git push origin feature/<your-feature-name>.
+Git 紀錄：在 Push 前請進行 rebase 整理，確保 Commit 訊息清晰（如 Feat:, Fix:, Refactor:）。
 
-Create a Pull Request (PR) on GitHub for review.
+大型檔案：模型權重 (.pt) 與大型數據集請確保已加入 .gitignore 或使用 Git LFS 管理。
 
-🔑 Key Configuration
-Data files being tracked by LFS: *.csv (in data/), *.xlsx
+聯絡資訊：<Your Name / Team Email>
 
-Main Configuration File: config.ini (Placeholder, if applicable)
 
-連絡資訊
-Main Contact: <Your Name / Team Email>
+---
 
-License: <e.g., MIT License>
+## 接下來的 Push 指令步驟
+
+要把這份新的 README 更新上去，請執行以下步驟：
+
+### 1. 修改檔案
+將上面的內容覆蓋掉你原本的 `D:\product_recognition\README.md`。
+
+### 2. Commit 並再次 Push
+```bash
+# 加入修改後的 README
+git add README.md
+
+# 提交變動 (這會是你的第 7 個 Commit)
+git commit -m "docs: 更新專案結構與技術特點說明 (README)"
+
+# 一口氣把所有 7 個 Commit 送上雲端
+git push origin main
