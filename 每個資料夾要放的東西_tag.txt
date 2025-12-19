@@ -1,0 +1,5 @@
+Grandma_Project/
+├── 01_PM_Office/        (放 Excel, 需求文件, 會議記錄)
+├── 02_Design_Studio/    (放 Figma 截圖, 素材)
+├── 03_AI_Lab/           (放 Python 腳本, 訓練數據, 模型檔)
+└── 04_App_Dev/          (放 Flutter 程式碼)
