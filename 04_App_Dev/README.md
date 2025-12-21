@@ -129,7 +129,27 @@
 
 
 ```
-- **ubuntu_onnx轉Tflite**: (venv) kunzh@USER0408:~/product_recognition_linux$ onnx2tf -i best.onnx -o tflite_output
+
+
+- 12/21:只有用detector_service.dart與main.dart
+```
+Error: No pubspec.yaml file found 代表你目前終端機（Terminal）的路徑是在 D:\product_recognition，但這個資料夾裡沒有 Flutter 的專案設定檔。
+指令： flutter clean (清除快取)
+
+指令： flutter pub get (重新取得依賴套件)
+
+flutter run -d 8a9b40c7
+
+
+
+```
+- **ubuntu_onnx轉Tflite**: 
+```
+
+(venv) kunzh@USER0408:~/product_recognition_linux$ onnx2tf -i best.onnx -o tflite_output >
+(venv) kunzh@USER0408:~/product_recognition_linux$ ls -lh tflite_output/  >
+
+```
 
 
 
