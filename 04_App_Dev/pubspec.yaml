@@ -44,5 +44,6 @@ flutter:
   # --- 資源宣告 (Assets) ---
   # ⚠️ 這裡非常重要！必須告訴 Flutter 把模型檔案打包進去
   assets:
-    - assets/models/best.tflite
+    - assets/models/best_float32.tflite
     - assets/models/labels.txt
+    - assets/products.json

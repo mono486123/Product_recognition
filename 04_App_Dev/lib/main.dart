@@ -4,17 +4,26 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:image/image.dart' as img;
 import 'detector_service.dart';
+import 'dart:convert'; // <--- 必須加上這一行！
+// 全域變數：供主頁面與搜尋頁面共用
+Map<String, String> labelTranslation = {};
+Map<String, int> productDatabase = {};
+
+void main() => runApp(MaterialApp(
+      debugShowCheckedModeBanner: false,
+      theme: ThemeData(primarySwatch: Colors.blueGrey),
+      home: const GroceryMainPage(),
+    ));
 
 // -----------------------------------------------------------------------
-// 1. 資料模型與全域對照表
+// 1. 資料模型
 // -----------------------------------------------------------------------
-
 class ProductItem {
-  final String id;        // 原始標籤 (如 Red_Label_Rice_Wine_Cooking)
-  final String name;      // 中文名稱 (如 紅標米酒_料理米酒)
-  int originalPrice;      // 原始單價
-  int currentPrice;       // 當前單價 (處理折抵用)
-  int quantity;           // 數量
+  final String id;
+  final String name;
+  int originalPrice;
+  int currentPrice;
+  int quantity;
 
   ProductItem({
     required this.id,
@@ -26,44 +35,9 @@ class ProductItem {
   int get total => currentPrice * quantity;
 }
 
-// 標籤轉換為中文名稱 
-final Map<String, String> labelTranslation = {
-  "Ace_T1_Wang_Pai": "王牌_T1",
-  "Ace_T6_Wang_Pai": "王牌_T6",
-  "BAR": "BAR",
-  "Long_Life_White_Chang_Shou_Bai": "長壽白",
-  "Mai_Xiang_Black_Tea_Aluminum": "麥香_紅茶_瓶裝",
-  "PENLAN": "PENLAN",
-  "Red_Label_Rice_Win_22_Medium": "紅標米酒_22度_中",
-  "Red_Label_Rice_Wine_22_Large": "紅標米酒_22度_大",
-  "Red_Label_Rice_Wine_Cooking": "紅標米酒_料理米酒",
-  "Snow_Mountain_Xue_Shan": "雪山",
-};
-
-// 商品原始價格資料庫 [cite: 5, 8]
-final Map<String, int> productDatabase = {
-  "Red_Label_Rice_Wine_Cooking": 27,
-  "Snow_Mountain_Xue_Shan": 35,
-  "PENLAN": 55,
-  "Red_Label_Rice_Wine_22_Large": 92,
-  "Red_Label_Rice_Win_22_Medium": 45,
-  "Mai_Xiang_Black_Tea_Aluminum": 10,
-  "Ace_T1_Wang_Pai": 80,
-  "Ace_T6_Wang_Pai": 80,
-  "Long_Life_White_Chang_Shou_Bai": 95,
-  "BAR": 35,
-};
-
-void main() => runApp(MaterialApp(
-  debugShowCheckedModeBanner: false,
-  theme: ThemeData(primarySwatch: Colors.blueGrey),
-  home: const GroceryMainPage(),
-));
-
 // -----------------------------------------------------------------------
-// 2. 主頁面：拍照與辨識結果清單 (Page 1, 2, 3, 7, 8)
+// 2. 主頁面邏輯
 // -----------------------------------------------------------------------
-
 class GroceryMainPage extends StatefulWidget {
   const GroceryMainPage({super.key});
   @override
@@ -73,22 +47,68 @@ class GroceryMainPage extends StatefulWidget {
 class _GroceryMainPageState extends State<GroceryMainPage> {
   final DetectorService _detector = DetectorService();
   final ImagePicker _picker = ImagePicker();
-  
+
   List<ProductItem> _cartItems = [];
   bool _isProcessing = false;
-  bool _isInListPage = false; // 控制顯示 Page 1 還是 Page 2
+  bool _isInListPage = false;
+  bool _isDataLoaded = false;
 
   @override
   void initState() {
     super.initState();
-    _detector.loadModel();
+    _initApp();
   }
 
-  // 計算所有商品總額 [cite: 6, 11]
+  // 初始化：載入 AI 模型與 CSV 數據
+  // 初始化：分開載入，互不影響
+    Future<void> _initApp() async {
+      // 1. 先載入商品資料 (CSV)，這樣就算 AI 壞掉，搜尋功能還能用
+      await _loadProductData();
+      
+      // 2. 再載入 AI 模型
+      await _detector.loadModel();
+      
+      // 3. 更新畫面
+      if (mounted) {
+        setState(() => _isDataLoaded = true);
+      }
+    }
+  
+    Future<void> _loadProductData() async {
+      try {
+        print("📂 開始讀取 JSON...");
+        final String response = await DefaultAssetBundle.of(context).loadString('assets/products.json');
+        final List<dynamic> data = json.decode(response);
+        
+        // 先清空，確保資料不會重複疊加
+        productDatabase.clear();
+        labelTranslation.clear();
+    
+        int loadedCount = 0;
+        for (var item in data) {
+          String id = item['id'];
+          int price = item['price'];
+          String name = item['name'];
+    
+          productDatabase[id] = price;
+          labelTranslation[id] = name;
+          loadedCount++;
+        }
+        print("✅ 成功載入 $loadedCount 筆商品資料");
+      } catch (e) {
+        print("❌ 資料載入失敗 (請檢查 JSON 格式或 Import): $e");
+      }
+    }
+
+
+
+
+
+
   int get totalAmount => _cartItems.fold(0, (sum, item) => sum + item.total);
 
-  // 拍照辨識邏輯 [cite: 2]
   Future<void> _takePhotoAndProcess() async {
+    if (!_isDataLoaded) return;
     final XFile? photo = await _picker.pickImage(source: ImageSource.camera);
     if (photo == null) return;
 
@@ -96,16 +116,16 @@ class _GroceryMainPageState extends State<GroceryMainPage> {
 
     final Uint8List originalBytes = await photo.readAsBytes();
     img.Image? originalImg = img.decodeImage(originalBytes);
-    
+
     if (originalImg != null) {
       img.Image resizedImg = img.copyResize(originalImg, width: 640, height: 640);
       Uint8List aiBytes = Uint8List.fromList(img.encodeJpg(resizedImg));
       final results = await _detector.predictFixedImage(aiBytes);
 
-      // 合併偵測結果並轉為中文 [cite: 5]
       Map<String, ProductItem> merged = {};
       for (var res in results) {
         String tag = res['tag'].toString();
+        // 核心對照邏輯：從 CSV 讀取的 Map 中找尋中文與價格
         String chineseName = labelTranslation[tag] ?? tag;
         int price = productDatabase[tag] ?? 0;
 
@@ -119,12 +139,11 @@ class _GroceryMainPageState extends State<GroceryMainPage> {
       setState(() {
         _cartItems = merged.values.toList();
         _isProcessing = false;
-        _isInListPage = true; 
+        _isInListPage = true;
       });
     }
   }
 
-  // 刪除按鈕邏輯：按一次減1，再按移除 
   void _handleDeleteItem(int index) {
     setState(() {
       if (_cartItems[index].quantity > 1) {
@@ -135,7 +154,6 @@ class _GroceryMainPageState extends State<GroceryMainPage> {
     });
   }
 
-  // 酒瓶抵扣按鈕：特定品項減 2 元 
   void _applyBottleDiscount() {
     setState(() {
       for (var item in _cartItems) {
@@ -151,95 +169,120 @@ class _GroceryMainPageState extends State<GroceryMainPage> {
     return _isInListPage ? _buildListPage() : _buildCameraPage();
   }
 
-  // Page 1: 拍照頁面
   Widget _buildCameraPage() {
-    return Scaffold(
-      body: Stack(
-        children: [
-          Container(color: Colors.grey[800], child: const Center(child: Text("拍攝預覽畫面", style: TextStyle(color: Colors.white)))),
-          if (_isProcessing) const Center(child: CircularProgressIndicator()),
-          // 拍照與功能鈕 [cite: 2, 3]
-          Positioned(
-            bottom: 40,
-            left: 0, right: 0,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
-              children: [
-                IconButton(onPressed: () {}, icon: const Icon(Icons.calculate, size: 45, color: Colors.blue)), // 計算機
-                GestureDetector(
-                  onTap: _takePhotoAndProcess,
-                  child: Container(padding: const EdgeInsets.all(5), decoration: const BoxDecoration(color: Colors.orangeAccent, shape: BoxShape.circle), child: const Icon(Icons.camera_alt, size: 60, color: Colors.white)),
-                ),
-                const SizedBox(width: 45), // 佔位
-              ],
+      return Scaffold(
+        body: Stack(
+          children: [
+            // 背景：不用黑色，改用深灰色，並顯示提示文字
+            Container(
+              color: Colors.blueGrey[900],
+              width: double.infinity,
+              height: double.infinity,
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(Icons.camera_alt_outlined, size: 100, color: Colors.white.withOpacity(0.3)),
+                  const SizedBox(height: 20),
+                  // 根據載入狀態顯示不同文字
+                  Text(
+                    _isDataLoaded ? "點擊下方按鈕\n開啟相機拍照" : "系統初始化中...",
+                    textAlign: TextAlign.center,
+                    style: const TextStyle(color: Colors.white, fontSize: 18),
+                  ),
+                ],
+              ),
             ),
-          )
-        ],
-      ),
-    );
-  }
+            
+            // 狀態 1: 如果還在載入資料 (CSV/Model)，顯示轉圈圈
+            if (!_isDataLoaded)
+              Container(
+                color: Colors.black54,
+                child: const Center(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      CircularProgressIndicator(color: Colors.orange),
+                      SizedBox(height: 10),
+                      Text("正在載入商品資料...", style: TextStyle(color: Colors.white)),
+                    ],
+                  ),
+                ),
+              ),
+  
+            // 狀態 2: 如果正在處理照片 (Processing)，顯示轉圈圈
+            if (_isProcessing)
+              Container(
+                color: Colors.black54,
+                child: const Center(child: CircularProgressIndicator(color: Colors.orange)),
+              ),
+  
+            // 底部按鈕區
+            Positioned(
+              bottom: 40,
+              left: 0,
+              right: 0,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                children: [
+                  IconButton(
+                    onPressed: () {}, 
+                    icon: const Icon(Icons.calculate, size: 45, color: Colors.blue)
+                  ),
+                  GestureDetector(
+                    // 只有資料載入完成才允許點擊
+                    onTap: _isDataLoaded ? _takePhotoAndProcess : null,
+                    child: Container(
+                      padding: const EdgeInsets.all(15),
+                      decoration: BoxDecoration(
+                        // 如果還沒載入好，按鈕變灰色
+                        color: _isDataLoaded ? Colors.orange : Colors.grey, 
+                        shape: BoxShape.circle,
+                      ),
+                      child: const Icon(Icons.camera_alt, size: 40, color: Colors.white),
+                    ),
+                  ),
+                  const SizedBox(width: 45), // 佔位用
+                ],
+              ),
+            )
+          ],
+        ),
+      );
+    }
 
-  // Page 2: 清單頁面
   Widget _buildListPage() {
     return Scaffold(
-      backgroundColor: const Color(0xFFF5F5F5),
+      appBar: AppBar(title: const Text("辨識結果清單"), leading: IconButton(icon: const Icon(Icons.arrow_back), onPressed: () => setState(() => _isInListPage = false))),
       body: Column(
         children: [
-          const SizedBox(height: 50),
           Expanded(
             child: ListView.builder(
               itemCount: _cartItems.length,
               itemBuilder: (context, index) {
                 final item = _cartItems[index];
-                return _buildGridListItem(item, index);
+                return ListTile(
+                  title: Text(item.name),
+                  subtitle: Text("單價: ${item.currentPrice} 元"),
+                  trailing: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text("x${item.quantity}", style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                      IconButton(icon: const Icon(Icons.remove_circle, color: Colors.red), onPressed: () => _handleDeleteItem(index)),
+                    ],
+                  ),
+                );
               },
             ),
           ),
-          // 底部控制區 [cite: 6, 8, 9]
           _buildBottomControlBar(),
         ],
       ),
     );
   }
 
-  Widget _buildGridListItem(ProductItem item, int index) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 5),
-      child: Row(
-        children: [
-          Expanded(flex: 5, child: Container(
-            padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(color: Colors.grey[300], border: Border.all(color: Colors.grey)),
-            child: Stack(
-              children: [
-                Text(item.name, style: const TextStyle(fontSize: 16)),
-                Positioned(right: 0, top: 0, child: GestureDetector(
-                  onTap: () => _handleDeleteItem(index),
-                  child: const Icon(Icons.cancel, color: Colors.red, size: 20),
-                )),
-              ],
-            ),
-          )),
-          const SizedBox(width: 5),
-          _buildBox("${item.currentPrice}", 60),
-          const SizedBox(width: 5),
-          _buildBox("${item.quantity}", 50),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildBox(String text, double width) {
-    return Container(
-      width: width, padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(color: Colors.grey[300], border: Border.all(color: Colors.grey)),
-      child: Text(text, textAlign: TextAlign.center, style: const TextStyle(fontWeight: FontWeight.bold)),
-    );
-  }
-
   Widget _buildBottomControlBar() {
     return Container(
-      color: const Color(0xFFE1F5FE),
+      color: Colors.blueGrey[50],
       padding: const EdgeInsets.all(20),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -247,17 +290,14 @@ class _GroceryMainPageState extends State<GroceryMainPage> {
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Container(padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5), color: Colors.white, child: Text("TOTAL: $totalAmount 元", style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold))),
-              const SizedBox(height: 10),
-              IconButton(onPressed: _applyBottleDiscount, icon: const Icon(Icons.wine_bar, size: 40)), // 酒瓶鈕 [cite: 8]
+              Text("總計: $totalAmount 元", style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: Colors.red)),
+              TextButton.icon(onPressed: _applyBottleDiscount, icon: const Icon(Icons.discount), label: const Text("米酒折抵 -2 元")),
             ],
           ),
-          Column(
-            children: [
-              IconButton(onPressed: () => setState(() => _isInListPage = false), icon: const Icon(Icons.undo, size: 40)), // 返回鈕 [cite: 8]
-              const SizedBox(height: 10),
-              IconButton(onPressed: _openSearchPage, icon: const Icon(Icons.add_shopping_cart, size: 40)), // 推車鈕 [cite: 9]
-            ],
+          ElevatedButton.icon(
+            onPressed: _openSearchPage,
+            icon: const Icon(Icons.search),
+            label: const Text("手動新增"),
           )
         ],
       ),
@@ -266,9 +306,10 @@ class _GroceryMainPageState extends State<GroceryMainPage> {
 
   void _openSearchPage() async {
     final List<ProductItem>? selected = await Navigator.push(
-      context, MaterialPageRoute(builder: (context) => const ManualSearchPage()),
+      context,
+      MaterialPageRoute(builder: (context) => const ManualSearchPage()),
     );
-    if (selected != null && selected.isNotEmpty) {
+    if (selected != null) {
       setState(() {
         for (var newItem in selected) {
           int idx = _cartItems.indexWhere((item) => item.id == newItem.id);
@@ -284,9 +325,8 @@ class _GroceryMainPageState extends State<GroceryMainPage> {
 }
 
 // -----------------------------------------------------------------------
-// 3. 手動搜尋頁面 (Page 4, 5, 6)
+// 3. 手動搜尋頁面
 // -----------------------------------------------------------------------
-
 class ManualSearchPage extends StatefulWidget {
   const ManualSearchPage({super.key});
   @override
@@ -295,78 +335,59 @@ class ManualSearchPage extends StatefulWidget {
 
 class _ManualSearchPageState extends State<ManualSearchPage> {
   String _keyword = "";
-  Map<String, int> _tempCounts = {}; // 暫存選中的數量
+  final Map<String, int> _tempSelection = {};
 
   @override
   Widget build(BuildContext context) {
-    // 過濾搜尋結果 [cite: 13]
+    // 過濾邏輯
     final filteredTags = labelTranslation.entries
-        .where((e) => e.value.contains(_keyword))
-        .map((e) => e.key)
+        .where((e) => e.value.contains(_keyword) || e.key.toLowerCase().contains(_keyword.toLowerCase()))
         .toList();
 
     return Scaffold(
+      appBar: AppBar(title: const Text("搜尋商品")),
       body: Column(
         children: [
-          const SizedBox(height: 50),
-          // 搜尋框 [cite: 13]
           Padding(
-            padding: const EdgeInsets.all(10),
+            padding: const EdgeInsets.all(12),
             child: TextField(
-              decoration: const InputDecoration(border: OutlineInputBorder(), prefixIcon: Icon(Icons.search), hintText: "輸入關鍵字"),
-              onChanged: (val) => setState(() => _keyword = val),
+              decoration: const InputDecoration(hintText: "搜尋中文或標籤...", prefixIcon: Icon(Icons.search), border: OutlineInputBorder()),
+              onChanged: (v) => setState(() => _keyword = v),
             ),
           ),
           Expanded(
             child: ListView.builder(
               itemCount: filteredTags.length,
               itemBuilder: (context, idx) {
-                String tag = filteredTags[idx];
-                String name = labelTranslation[tag]!;
-                int count = _tempCounts[tag] ?? 0;
-
+                final entry = filteredTags[idx];
                 return ListTile(
-                  title: Container(padding: const EdgeInsets.all(10), color: Colors.grey[200], child: Text(name)),
-                  trailing: Container(width: 40, height: 40, alignment: Alignment.center, color: Colors.grey[200], child: Text("$count")),
+                  title: Text(entry.value),
+                  subtitle: Text(entry.key),
+                  trailing: _tempSelection.containsKey(entry.key) ? const Icon(Icons.check_circle, color: Colors.green) : null,
                   onTap: () {
-                    setState(() => _tempCounts[tag] = 1); // 選中變 1 [cite: 15]
-                    _showToast(name); // 跳出提示框 [cite: 18]
+                    setState(() => _tempSelection[entry.key] = 1);
+                    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("已選中: ${entry.value}"), duration: const Duration(milliseconds: 500)));
                   },
                 );
               },
             ),
           ),
-          // 下方控制鈕 [cite: 19]
           Padding(
-            padding: const EdgeInsets.only(bottom: 30),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                IconButton(onPressed: _confirmAdd, icon: const Icon(Icons.add_shopping_cart, size: 60)), // 確認推車
-                const SizedBox(width: 40),
-                IconButton(onPressed: () => Navigator.pop(context), icon: const Icon(Icons.undo, size: 40)), // 返回
-              ],
+            padding: const EdgeInsets.all(20),
+            child: ElevatedButton(
+              style: ElevatedButton.styleFrom(minimumSize: const Size(double.infinity, 50)),
+              onPressed: () {
+                List<ProductItem> results = [];
+                _tempSelection.forEach((id, qty) {
+                  results.add(ProductItem(id: id, name: labelTranslation[id]!, originalPrice: productDatabase[id]!));
+                });
+                Navigator.pop(context, results);
+              },
+              child: const Text("確認新增"),
             ),
           )
         ],
       ),
     );
-  }
-
-  void _showToast(String name) {
-    ScaffoldMessenger.of(context).clearSnackBars();
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text("$name x1"), behavior: SnackBarBehavior.floating, duration: const Duration(milliseconds: 700)),
-    );
-  }
-
-  void _confirmAdd() {
-    List<ProductItem> selectedItems = [];
-    _tempCounts.forEach((tag, count) {
-      if (count > 0) {
-        selectedItems.add(ProductItem(id: tag, name: labelTranslation[tag]!, originalPrice: productDatabase[tag]!));
-      }
-    });
-    Navigator.pop(context, selectedItems); // 只有按下推車鈕才傳回 
   }
 }
