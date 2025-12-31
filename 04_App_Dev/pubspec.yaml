@@ -1,4 +1,4 @@
-name: product_recognition_app
+name: product_recognition_app_v2
 description: 雜貨店商品辨識系統 (Engineering App) - 針對 realme GT 優化
 publish_to: 'none' # 防止意外發布到公共庫
 version: 1.0.0+1
@@ -9,6 +9,8 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+    firebase_core: ^2.24.2
+    cloud_firestore: ^4.14.0
 
   # --- 核心功能套件 ---
   
