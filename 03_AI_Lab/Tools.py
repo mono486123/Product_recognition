@@ -1,41 +1,23 @@
 import os
+from pathlib import Path
 
-def clean_augmented_files(data_root):
-    """
-    🧹 專門刪除 YOLO 格式資料集中的擴充檔案
-    包含: .jpg, .png, .txt (標籤)
-    """
-    # 定義要掃描的子路徑 (可根據需求增加，如 val, test)
-    sub_dirs = [
-        os.path.join("train", "images"),
-        os.path.join("train", "labels")    ]
-    
-    tags = ["_blur", "_noise"]
-    count = 0
+# 設定你的路徑
+label_path = r"D:\product_recognition\03_AI_Lab\yolo11_data\drink\test\labels" # 請確認這是你 labels 的實際路徑
+num_classes = 31
 
-    print(f"🚀 開始清理路徑: {data_root}")
+print(f"--- 開始掃描標籤 (目標範圍: 0-30) ---")
+found_error = False
 
-    for sub in sub_dirs:
-        folder_path = os.path.join(data_root, sub)
-        
-        if not os.path.exists(folder_path):
-            print(f"ℹ️ 跳過不存在的資料夾: {sub}")
-            continue
+for txt_file in Path(label_path).glob('*.txt'):
+    with open(txt_file, 'r') as f:
+        for i, line in enumerate(f):
+            parts = line.split()
+            if not parts: continue
+            
+            class_id = int(parts[0])
+            if class_id >= num_classes:
+                print(f"❌ 錯誤位置: {txt_file.name} | 第 {i+1} 行 | ID 為 {class_id}")
+                found_error = True
 
-        for filename in os.listdir(folder_path):
-            # 檢查檔名是否包含指定的標籤
-            if any(tag in filename for tag in tags):
-                file_path = os.path.join(folder_path, filename)
-                try:
-                    os.remove(file_path)
-                    count += 1
-                except Exception as e:
-                    print(f"❌ 無法刪除 {filename}: {e}")
-
-    print(f"✅ 清理完畢！總共刪除了 {count} 個擴充檔案。")
-
-# --- 測試區塊：如果你直接執行 Tools.py 就會執行這裡 ---
-if __name__ == "__main__":
-    # 這裡填入你的資料集根目錄
-    TARGET_PATH = r"D:\product_recognition\03_AI_Lab\yolo11_data"
-    clean_augmented_files(TARGET_PATH)
+if not found_error:
+    print("✅ 訓練集標籤檢查完畢，未發現越界。請也對 valid/labels 執行相同檢查。")

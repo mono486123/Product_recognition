@@ -7,7 +7,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
 import 'detector_service.dart'; // 確保檔案路徑正確
-
+import 'package:firebase_core/firebase_core.dart'; // 新增
+import 'package:cloud_firestore/cloud_firestore.dart'; // 新增
+import 'firebase_options.dart'; // 新增 (需執行過 flutterfire configure)
+ 
 // ==========================================
 // 2. 全域變數與啟動進入點
 // ==========================================
@@ -15,16 +18,21 @@ Map<String, String> labelTranslation = {};
 Map<String, int> productDatabase = {};
 Map<String, String> productCategoryMap = {};
 
-void main() => runApp(MaterialApp(
-      debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        primarySwatch: Colors.blueGrey,
-        useMaterial3: true,
-        scaffoldBackgroundColor: Colors.grey[100],
-      ),
-      home: const GroceryMainPage(),
-    ));
-
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
+  runApp(MaterialApp(
+    debugShowCheckedModeBanner: false,
+    theme: ThemeData(
+      primarySwatch: Colors.blueGrey,
+      useMaterial3: true,
+      scaffoldBackgroundColor: Colors.grey[100],
+    ),
+    home: const GroceryMainPage(),
+  ));
+}
 // ==========================================
 // 3. 資料模型 (Data Model)
 // ==========================================
@@ -88,64 +96,79 @@ class _GroceryMainPageState extends State<GroceryMainPage> {
     if (mounted) setState(() => _isDataLoaded = true);
   }
 
+
+
+
+
   // ------------------------------------------
   // C. 資料載入邏輯 (JSON Parsing)
   // ------------------------------------------
-  Future<void> _loadProductData() async {
+Future<void> _loadProductData() async {
     try {
-      final String response = await rootBundle.loadString('assets/products.json');
-      final List<dynamic> data = json.decode(response);
-      
-      productDatabase.clear();
-      labelTranslation.clear();
-      productCategoryMap.clear();
+      // 這裡改為監聽 Firebase，雲端一改，App 會自動更新，不需重啟
+      FirebaseFirestore.instance.collection('products').snapshots().listen((snapshot) {
+        setState(() {
+          productDatabase.clear();
+          labelTranslation.clear();
+          productCategoryMap.clear();
 
-      for (var item in data) {
-        String id = item['id']?.toString() ?? "unknown";
-        int price = (item['price'] is int) ? item['price'] : (int.tryParse(item['price'].toString()) ?? 0);
-        String name = item['name']?.toString() ?? "未命名商品";
-        String category = (item['class']?.toString() ?? "food").toLowerCase().trim();
+          for (var doc in snapshot.docs) {
+            final data = doc.data();
+            String id = doc.id; // 文件 ID 作為產品 ID
+            String name = data['name'] ?? "未命名";
+            int price = (data['price'] is int) ? data['price'] : (int.tryParse(data['price'].toString()) ?? 0);
+            String category = (data['category'] ?? "food").toLowerCase().trim();
 
-        productDatabase[id] = price;
-        labelTranslation[id] = name;
-        productCategoryMap[id] = category; 
-      }
+            productDatabase[id] = price;
+            labelTranslation[id] = name;
+            productCategoryMap[id] = category;
+          }
+          _isDataLoaded = true;
+        });
+      });
     } catch (e) {
-      debugPrint("❌ 資料載入失敗: $e");
+      debugPrint("❌ Firebase 資料載入失敗: $e");
     }
   }
-
   // ------------------------------------------
   // D. AI 辨識處理邏輯
   // ------------------------------------------
   Future<void> _takePhotoAndAIProcess() async {
+    // 1. 啟動相機拍照
     final XFile? photo = await _picker.pickImage(source: ImageSource.camera);
     if (photo == null) return;
 
+    // 2. 顯示 AI 處理中的遮罩
     setState(() => _isProcessingAI = true);
 
     try {
+      // 3. 將圖片轉為位元組 (Bytes) 並餵給你的 DetectorService
       final Uint8List photoBytes = await photo.readAsBytes();
       final results = await _detector.predictFixedImage(photoBytes);
 
+      // 4. 處理辨識結果
       if (results.isNotEmpty) {
         for (var res in results) {
           String tag = res['tag'].toString();
+          
+          // 關鍵點：這裡會去比對從 Firebase 抓下來的 productDatabase 
           if (productDatabase.containsKey(tag)) {
             _addItemToCart(tag);
           }
         }
+        // 辨識成功後，自動跳轉到「確認購貨清單」頁面
         setState(() => _isInListPage = true);
       } else {
-        _showSimpleSnackBar("AI 未能辨識商品");
+        _showSimpleSnackBar("AI 未能辨識商品，請再試一次或手動選擇");
       }
     } catch (e) {
-      debugPrint("AI 辨識錯誤: $e");
+      debugPrint("❌ AI 辨識過程發生錯誤: $e");
+      _showSimpleSnackBar("辨識失敗，請檢查模型或相機權限");
     } finally {
+      // 5. 關閉處理中遮罩
       setState(() => _isProcessingAI = false);
     }
   }
-
   // ------------------------------------------
   // E. 購物車與折扣邏輯
   // ------------------------------------------
@@ -237,13 +260,55 @@ class _GroceryMainPageState extends State<GroceryMainPage> {
               ],
             ),
             actions: [
-              TextButton(onPressed: () => Navigator.pop(context), child: const Text("完成")),
-            ],
-          );
+              TextButton(
+                onPressed: () {
+                  Navigator.pop(context); // 關閉找零視窗
+                  _syncTransactionToCloud(); // 執行雲端扣庫存
+                }, 
+                child: const Text("完成結帳並扣庫存", style: TextStyle(fontWeight: FontWeight.bold))
+              ),
+            ],          );
         },
       ),
     );
   }
+  //新增雲端結帳與扣庫存功能
+  Future<void> _syncTransactionToCloud() async {
+    final firestore = FirebaseFirestore.instance;
+    final batch = firestore.batch();
+
+    try {
+      for (var item in _cartItems) {
+        // 1. 找到該商品的雲端文件並扣庫存
+        DocumentReference productRef = firestore.collection('products').doc(item.id);
+        batch.update(productRef, {
+          'stock': FieldValue.increment(-item.quantity)
+        });
+      }
+
+      // 2. 存入交易紀錄
+      DocumentReference saleRef = firestore.collection('sales').doc();
+      batch.set(saleRef, {
+        'timestamp': FieldValue.serverTimestamp(),
+        'total_amount': totalAmount,
+        'items': _cartItems.map((e) => {'name': e.name, 'qty': e.quantity, 'price': e.currentPrice}).toList(),
+      });
+
+      await batch.commit(); // 提交所有變動
+      _showSimpleSnackBar("✅ 交易成功：庫存已更新");
+      
+      setState(() {
+        _cartItems.clear(); // 清空購物車
+        _isInListPage = false; // 返回主頁
+      });
+    } catch (e) {
+      _showSimpleSnackBar("❌ 雲端同步失敗: $e");
+    }
+  }
+
+
+
+
 
   void _showItemSelector(String title, String type) {
     List<String> filteredIds = productCategoryMap.entries
