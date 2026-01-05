@@ -5,11 +5,22 @@ import streamlit as st
 import firebase_admin
 from firebase_admin import credentials, firestore
 import pandas as pd
+import os
+from dotenv import load_dotenv
+
+# 1. 載入環境變數 (會從專案目錄下的 .env 讀取)
+load_dotenv()
+
+FIREBASE_KEY = os.getenv('FIREBASE_KEY_PATH')
 
 # 1. 初始化 Firebase
 if not firebase_admin._apps:
-    cred = credentials.Certificate('serviceAccountKey.json')
-    firebase_admin.initialize_app(cred)
+    if FIREBASE_KEY and os.path.exists(FIREBASE_KEY):
+       cred = credentials.Certificate('FIREBASE_KEY')
+       firebase_admin.initialize_app(cred)
+    else:
+        st.error("❌ 找不到 Firebase 金鑰檔案，請檢查 .env 設定！")
+        st.stop() # 停止執行後續程式碼
 
 db = firestore.client()
 

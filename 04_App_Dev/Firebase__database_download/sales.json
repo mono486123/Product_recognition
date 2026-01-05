@@ -1,0 +1,68 @@
+[
+  {
+    "total_amount": 160,
+    "items": [
+      {
+        "name": "王牌_T1",
+        "price": 80,
+        "qty": 2
+      }
+    ],
+    "timestamp": "2025-12-31T13:46:39.418000+00:00",
+    "id": "1u17KdnpKy2sh0CIoGI8"
+  },
+  {
+    "total_amount": 380,
+    "items": [
+      {
+        "name": "麥香_奶茶_鋁箔",
+        "price": 10,
+        "qty": 1
+      },
+      {
+        "name": "麥香_綠茶_鋁箔",
+        "price": 10,
+        "qty": 3
+      },
+      {
+        "name": "麥香_紅茶_鋁箔",
+        "price": 10,
+        "qty": 1
+      },
+      {
+        "name": "波蜜",
+        "price": 10,
+        "qty": 1
+      },
+      {
+        "name": "金牌_一手",
+        "price": 240,
+        "qty": 1
+      },
+      {
+        "name": "檳榔",
+        "price": 50,
+        "qty": 1
+      },
+      {
+        "name": "小水",
+        "price": 10,
+        "qty": 3
+      }
+    ],
+    "timestamp": "2026-01-04T04:21:07.890000+00:00",
+    "id": "KrPZ2cx2iGmWxm2nQn9z"
+  },
+  {
+    "total_amount": 120,
+    "items": [
+      {
+        "name": "一度讚_紅燒",
+        "price": 60,
+        "qty": 2
+      }
+    ],
+    "timestamp": "2025-12-31T13:47:59.256000+00:00",
+    "id": "Wu05tElkzv0m1cW90Sog"
+  }
+]

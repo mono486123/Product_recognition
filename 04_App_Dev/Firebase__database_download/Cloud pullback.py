@@ -3,16 +3,31 @@ from firebase_admin import credentials, firestore
 import json
 import os
 from datetime import datetime
+from dotenv import load_dotenv # 引入 dotenv
+
+
+# 載入環境變數
+load_dotenv()
+
+
+# 🚩 演習重點：從環境變數讀取金鑰路徑與基礎路徑
+FIREBASE_KEY = os.getenv('FIREBASE_KEY_PATH')
+BASE_PATH = os.getenv('BASE_SAVE_PATH', r'D:\product_recognition\04_App_Dev')
+
 
 # 1. 初始化 Firebase 連線
 if not firebase_admin._apps:
-    cred = credentials.Certificate(r"D:\product_recognition\04_App_Dev\serviceAccountKey.json")
-    firebase_admin.initialize_app(cred)
+    if FIREBASE_KEY and os.path.exists(FIREBASE_KEY):
+        # 🚩 修正：使用環境變數變數，而非硬編碼字串
+        cred = credentials.Certificate(FIREBASE_KEY)
+        firebase_admin.initialize_app(cred)
+    else:
+        print("❌ 錯誤：找不到 Firebase 金鑰，請檢查 .env 設定")
+        exit()
 
 db = firestore.client()
 
 # 定義儲存路徑
-BASE_PATH = r'D:\product_recognition\04_App_Dev'
 PRODUCTS_OUT = os.path.join(BASE_PATH, 'products.json')
 SALES_OUT = os.path.join(BASE_PATH, 'sales.json')
 

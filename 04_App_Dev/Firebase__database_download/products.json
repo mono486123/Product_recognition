@@ -1,0 +1,586 @@
+[
+  {
+    "category": "tobacco",
+    "price": 80,
+    "lastUpdate": "2026-01-05T05:44:31.674000+00:00",
+    "stock": 100,
+    "name": "王牌_T1",
+    "id": "Ace_T1_Wang_Pai"
+  },
+  {
+    "category": "tobacco",
+    "price": 80,
+    "lastUpdate": "2026-01-05T05:44:31.674000+00:00",
+    "stock": 100,
+    "name": "王牌_T6",
+    "id": "Ace_T6_Wang_Pai"
+  },
+  {
+    "category": "tobacco",
+    "price": 80,
+    "lastUpdate": "2026-01-05T05:44:31.674000+00:00",
+    "stock": 100,
+    "name": "王牌",
+    "id": "Ace_Wang_Pai"
+  },
+  {
+    "category": "alcohol",
+    "price": 100,
+    "lastUpdate": "2026-01-05T05:44:31.674000+00:00",
+    "stock": 100,
+    "name": "鹿茸酒",
+    "id": "Antler_Velvet_Wine"
+  },
+  {
+    "category": "drink",
+    "price": 20,
+    "lastUpdate": "2026-01-05T05:44:31.674000+00:00",
+    "stock": 100,
+    "name": "蘋果西打",
+    "id": "Apple_Sidra"
+  },
+  {
+    "category": "alcohol",
+    "price": 35,
+    "lastUpdate": "2026-01-05T05:44:31.674000+00:00",
+    "stock": 100,
+    "name": "BAR",
+    "id": "BAR"
+  },
+  {
+    "category": "alcohol",
+    "price": 200,
+    "lastUpdate": "2026-01-05T05:44:31.674000+00:00",
+    "stock": 100,
+    "name": "BAR_一手",
+    "id": "BAR_One_Hand"
+  },
+  {
+    "category": "food",
+    "price": 30,
+    "lastUpdate": "2026-01-05T05:44:31.674000+00:00",
+    "stock": 100,
+    "name": "八寶粥",
+    "id": "Ba_Bao_Zhou"
+  },
+  {
+    "category": "alcohol",
+    "price": 100,
+    "lastUpdate": "2026-01-05T05:44:31.674000+00:00",
+    "stock": 100,
+    "name": "保力達_大",
+    "id": "Baoli_Da_Large"
+  },
+  {
+    "category": "alcohol",
+    "price": 55,
+    "lastUpdate": "2026-01-05T05:44:31.674000+00:00",
+    "stock": 100,
+    "name": "保力達_小",
+    "id": "Baoli_Da_Small"
+  },
+  {
+    "category": "food",
+    "price": 50,
+    "lastUpdate": "2026-01-05T05:44:31.674000+00:00",
+    "stock": 100,
+    "name": "檳榔",
+    "id": "Bing_Lang"
+  },
+  {
+    "category": "tobacco",
+    "price": 135,
+    "lastUpdate": "2026-01-05T05:44:31.674000+00:00",
+    "stock": 100,
+    "name": "黑大衛",
+    "id": "Black_David"
+  },
+  {
+    "category": "tobacco",
+    "price": 110,
+    "lastUpdate": "2026-01-05T05:44:31.674000+00:00",
+    "stock": 100,
+    "name": "藍_摩爾",
+    "id": "Blue_Moor"
+  },
+  {
+    "category": "drink",
+    "price": 25,
+    "lastUpdate": "2026-01-05T05:44:31.674000+00:00",
+    "stock": 100,
+    "name": "蠻牛",
+    "id": "Bull_Power"
+  },
+  {
+    "category": "drink",
+    "price": 15,
+    "lastUpdate": "2026-01-05T05:44:31.674000+00:00",
+    "stock": 100,
+    "name": "咖啡廣場",
+    "id": "Coffee_Square"
+  },
+  {
+    "category": "drink",
+    "price": 20,
+    "lastUpdate": "2026-01-05T05:44:31.674000+00:00",
+    "stock": 100,
+    "name": "冷泡茶",
+    "id": "Cold_Brew_Tea"
+  },
+  {
+    "category": "drink",
+    "price": 35,
+    "lastUpdate": "2026-01-05T05:44:31.674000+00:00",
+    "stock": 100,
+    "name": "分解茶",
+    "id": "Decompose_Tea"
+  },
+  {
+    "category": "food",
+    "price": 15,
+    "lastUpdate": "2026-01-05T05:44:31.674000+00:00",
+    "stock": 100,
+    "name": "銅鑼燒",
+    "id": "Dorayaki"
+  },
+  {
+    "category": "alcohol",
+    "price": 40,
+    "lastUpdate": "2026-01-05T05:44:31.674000+00:00",
+    "stock": 100,
+    "name": "金牌",
+    "id": "Gold_Medal_Beer"
+  },
+  {
+    "category": "alcohol",
+    "price": 240,
+    "lastUpdate": "2026-01-05T05:44:31.674000+00:00",
+    "stock": 100,
+    "name": "金牌_一手",
+    "id": "Gold_Medal_Beer_One_Hand"
+  },
+  {
+    "category": "drink",
+    "price": 25,
+    "lastUpdate": "2026-01-05T05:44:31.674000+00:00",
+    "stock": 100,
+    "name": "國農牛乳",
+    "id": "Guonong_Milk"
+  },
+  {
+    "category": "drink",
+    "price": 20,
+    "lastUpdate": "2026-01-05T05:44:31.674000+00:00",
+    "stock": 100,
+    "name": "黑松沙士_鐵罐",
+    "id": "HeySong_Sarsaparilla_Iron"
+  },
+  {
+    "category": "drink",
+    "price": 50,
+    "lastUpdate": "2026-01-05T05:44:31.674000+00:00",
+    "stock": 100,
+    "name": "黑松沙士_大罐",
+    "id": "HeySong_Sarsaparilla_Large"
+  },
+  {
+    "category": "food",
+    "price": 60,
+    "lastUpdate": "2026-01-05T05:44:31.674000+00:00",
+    "stock": 100,
+    "name": "一度讚_紅燒",
+    "id": "I_Mei_Braised_Beef"
+  },
+  {
+    "category": "drink",
+    "price": 25,
+    "lastUpdate": "2026-01-05T05:44:31.674000+00:00",
+    "stock": 100,
+    "name": "建酪",
+    "id": "Jian_Nao"
+  },
+  {
+    "category": "food",
+    "price": 10,
+    "lastUpdate": "2026-01-05T05:44:31.674000+00:00",
+    "stock": 100,
+    "name": "可樂果",
+    "id": "Ke_Le_Guo"
+  },
+  {
+    "category": "food",
+    "price": 10,
+    "lastUpdate": "2026-01-05T05:44:31.674000+00:00",
+    "stock": 100,
+    "name": "科學麵",
+    "id": "Ke_Xue_Mian"
+  },
+  {
+    "category": "drink",
+    "price": 20,
+    "lastUpdate": "2026-01-05T05:44:31.674000+00:00",
+    "stock": 100,
+    "name": "茶裏王_綠",
+    "id": "King_Tea_Green"
+  },
+  {
+    "category": "drink",
+    "price": 20,
+    "lastUpdate": "2026-01-05T05:44:31.674000+00:00",
+    "stock": 100,
+    "name": "茶裏王_黃",
+    "id": "King_Tea_Yellow"
+  },
+  {
+    "category": "food",
+    "price": 25,
+    "lastUpdate": "2026-01-05T05:44:31.674000+00:00",
+    "stock": 100,
+    "name": "來一客",
+    "id": "Lai_Yi_Ke"
+  },
+  {
+    "category": "drink",
+    "price": 20,
+    "lastUpdate": "2026-01-05T05:44:31.674000+00:00",
+    "stock": 100,
+    "name": "大水",
+    "id": "Large_Water"
+  },
+  {
+    "category": "food",
+    "price": 30,
+    "lastUpdate": "2026-01-05T05:44:31.674000+00:00",
+    "stock": 100,
+    "name": "樂事_洋芋片_紙盒",
+    "id": "Lays_Potato_Chips_Box"
+  },
+  {
+    "category": "food",
+    "price": 10,
+    "lastUpdate": "2026-01-05T05:44:31.674000+00:00",
+    "stock": 100,
+    "name": "樂事_海苔",
+    "id": "Le_Shi_Hai_Tai"
+  },
+  {
+    "category": "food",
+    "price": 10,
+    "lastUpdate": "2026-01-05T05:44:31.674000+00:00",
+    "stock": 100,
+    "name": "樂事_原味",
+    "id": "Le_Shi_Yuan_Wei"
+  },
+  {
+    "category": "tobacco",
+    "price": 100,
+    "lastUpdate": "2026-01-05T05:44:31.674000+00:00",
+    "stock": 100,
+    "name": "長壽1 號",
+    "id": "Long_Life_No_1"
+  },
+  {
+    "category": "tobacco",
+    "price": 95,
+    "lastUpdate": "2026-01-05T05:44:31.674000+00:00",
+    "stock": 100,
+    "name": "長壽白",
+    "id": "Long_Life_White_Chang_Shou_Bai"
+  },
+  {
+    "category": "tobacco",
+    "price": 95,
+    "lastUpdate": "2026-01-05T05:44:31.674000+00:00",
+    "stock": 100,
+    "name": "長壽黃",
+    "id": "Long_Life_Yellow_Chang_Shou_Huang"
+  },
+  {
+    "category": "drink",
+    "price": 10,
+    "lastUpdate": "2026-01-05T05:44:31.674000+00:00",
+    "stock": 100,
+    "name": "麥香_紅茶_鋁箔",
+    "id": "Mai_Xiang_Black_Tea_Aluminum"
+  },
+  {
+    "category": "drink",
+    "price": 25,
+    "lastUpdate": "2026-01-05T05:44:31.674000+00:00",
+    "stock": 100,
+    "name": "麥香_紅茶_瓶裝",
+    "id": "Mai_Xiang_Black_Tea_Bottled"
+  },
+  {
+    "category": "drink",
+    "price": 10,
+    "lastUpdate": "2026-01-05T05:44:31.674000+00:00",
+    "stock": 100,
+    "name": "麥香_綠茶_鋁箔",
+    "id": "Mai_Xiang_Green"
+  },
+  {
+    "category": "drink",
+    "price": 10,
+    "lastUpdate": "2026-01-05T05:44:31.674000+00:00",
+    "stock": 100,
+    "name": "麥香_奶茶_鋁箔",
+    "id": "Mai_Xiang_Milk"
+  },
+  {
+    "category": "food",
+    "price": 60,
+    "lastUpdate": "2026-01-05T05:44:31.674000+00:00",
+    "stock": 100,
+    "name": "滿漢大餐",
+    "id": "Man_Han_Feast"
+  },
+  {
+    "category": "drink",
+    "price": 25,
+    "lastUpdate": "2026-01-05T05:44:31.674000+00:00",
+    "stock": 100,
+    "name": "伯朗咖啡",
+    "id": "Mr_Brown_Coffee"
+  },
+  {
+    "category": "tobacco",
+    "price": 110,
+    "lastUpdate": "2026-01-05T05:44:31.674000+00:00",
+    "stock": 100,
+    "name": "尊爵",
+    "id": "Noble_Zun_Jue"
+  },
+  {
+    "category": "drink",
+    "price": 15,
+    "lastUpdate": "2026-01-05T05:44:31.674000+00:00",
+    "stock": 100,
+    "name": "橘子汽水",
+    "id": "Orange_Soda"
+  },
+  {
+    "category": "tobacco",
+    "price": 55,
+    "lastUpdate": "2026-01-05T05:44:31.674000+00:00",
+    "stock": 100,
+    "name": "PENLAN",
+    "id": "PENLAN"
+  },
+  {
+    "category": "drink",
+    "price": 25,
+    "lastUpdate": "2026-01-05T05:44:31.674000+00:00",
+    "stock": 100,
+    "name": "花生牛奶",
+    "id": "Peanut_Milk"
+  },
+  {
+    "category": "food",
+    "price": 15,
+    "lastUpdate": "2026-01-05T05:44:31.674000+00:00",
+    "stock": 100,
+    "name": "皮蛋",
+    "id": "Pi_Dan"
+  },
+  {
+    "category": "drink",
+    "price": 10,
+    "lastUpdate": "2026-01-05T05:44:31.674000+00:00",
+    "stock": 100,
+    "name": "波蜜",
+    "id": "Pome_Vegetable"
+  },
+  {
+    "category": "food",
+    "price": 90,
+    "lastUpdate": "2026-01-05T05:44:31.674000+00:00",
+    "stock": 100,
+    "name": "排骨雞麵_五包入",
+    "id": "Pork_Ribs_Instant_Noodle_5_Packs"
+  },
+  {
+    "category": "alcohol",
+    "price": 45,
+    "lastUpdate": "2026-01-05T05:44:31.674000+00:00",
+    "stock": 100,
+    "name": "紅標米酒_22度_中",
+    "id": "Red_Label_Rice_Win_22_Medium"
+  },
+  {
+    "category": "alcohol",
+    "price": 92,
+    "lastUpdate": "2026-01-05T05:44:31.674000+00:00",
+    "stock": 100,
+    "name": "紅標米酒_22度_大",
+    "id": "Red_Label_Rice_Wine_22_Large"
+  },
+  {
+    "category": "alcohol",
+    "price": 27,
+    "lastUpdate": "2026-01-05T05:44:31.674000+00:00",
+    "stock": 100,
+    "name": "紅標米酒_料理米酒",
+    "id": "Red_Label_Rice_Wine_Cooking"
+  },
+  {
+    "category": "food",
+    "price": 50,
+    "lastUpdate": "2026-01-05T05:44:31.674000+00:00",
+    "stock": 100,
+    "name": "番茄汁鯖魚",
+    "id": "Sardine_in_Tomato"
+  },
+  {
+    "category": "tobacco",
+    "price": 130,
+    "lastUpdate": "2026-01-05T05:44:31.674000+00:00",
+    "stock": 100,
+    "name": "七星",
+    "id": "Seven_Stars_Qi_Xing"
+  },
+  {
+    "category": "drink",
+    "price": 10,
+    "lastUpdate": "2026-01-05T05:44:31.674000+00:00",
+    "stock": 100,
+    "name": "小水",
+    "id": "Small_Water"
+  },
+  {
+    "category": "alcohol",
+    "price": 210,
+    "lastUpdate": "2026-01-05T05:44:31.674000+00:00",
+    "stock": 100,
+    "name": "雪山_一手",
+    "id": "Snow_Mountain_One_Hand"
+  },
+  {
+    "category": "alcohol",
+    "price": 35,
+    "lastUpdate": "2026-01-05T05:44:31.674000+00:00",
+    "stock": 100,
+    "name": "雪山",
+    "id": "Snow_Mountain_Xue_Shan"
+  },
+  {
+    "category": "drink",
+    "price": 25,
+    "lastUpdate": "2026-01-05T05:44:31.674000+00:00",
+    "stock": 100,
+    "name": "舒跑_瓶裝",
+    "id": "Sweat_Run_Bottled"
+  },
+  {
+    "category": "drink",
+    "price": 50,
+    "lastUpdate": "2026-01-05T05:44:31.674000+00:00",
+    "stock": 100,
+    "name": "舒跑_瓶裝_大",
+    "id": "Sweat_Run_Bottled_Large"
+  },
+  {
+    "category": "drink",
+    "price": 20,
+    "lastUpdate": "2026-01-05T05:44:31.674000+00:00",
+    "stock": 100,
+    "name": "舒跑_中",
+    "id": "Sweat_Run_Medium"
+  },
+  {
+    "category": "drink",
+    "price": 10,
+    "lastUpdate": "2026-01-05T05:44:31.674000+00:00",
+    "stock": 100,
+    "name": "舒跑_小",
+    "id": "Sweat_Run_Small"
+  },
+  {
+    "category": "food",
+    "price": 15,
+    "lastUpdate": "2026-01-05T05:44:31.674000+00:00",
+    "stock": 100,
+    "name": "太陽餅",
+    "id": "Tai_Yang_Bing"
+  },
+  {
+    "category": "alcohol",
+    "price": 35,
+    "lastUpdate": "2026-01-05T05:44:31.674000+00:00",
+    "stock": 100,
+    "name": "台啤",
+    "id": "Taiwan_Beer"
+  },
+  {
+    "category": "alcohol",
+    "price": 200,
+    "lastUpdate": "2026-01-05T05:44:31.674000+00:00",
+    "stock": 100,
+    "name": "台啤_一手",
+    "id": "Taiwan_Beer_One_Hand"
+  },
+  {
+    "category": "food",
+    "price": 90,
+    "lastUpdate": "2026-01-05T05:44:31.674000+00:00",
+    "stock": 100,
+    "name": "統一麵_鮮蝦_五包入",
+    "id": "Uni_Noodle_Shrimp_5_Packs"
+  },
+  {
+    "category": "alcohol",
+    "price": 100,
+    "lastUpdate": "2026-01-05T05:44:31.674000+00:00",
+    "stock": 100,
+    "name": "維士比",
+    "id": "Wei_Shi_Bi"
+  },
+  {
+    "category": "tobacco",
+    "price": 125,
+    "lastUpdate": "2026-01-05T05:44:31.674000+00:00",
+    "stock": 100,
+    "name": "雲絲頓_大",
+    "id": "Winston_Large"
+  },
+  {
+    "category": "tobacco",
+    "price": 110,
+    "lastUpdate": "2026-01-05T05:44:31.674000+00:00",
+    "stock": 100,
+    "name": "雲絲頓",
+    "id": "Winston_Yun_Si_Dun"
+  },
+  {
+    "category": "drink",
+    "price": 15,
+    "lastUpdate": "2026-01-05T05:44:31.674000+00:00",
+    "stock": 100,
+    "name": "冬瓜茶",
+    "id": "Winter_Melon_Tea"
+  },
+  {
+    "category": "food",
+    "price": 35,
+    "lastUpdate": "2026-01-05T05:44:31.674000+00:00",
+    "stock": 100,
+    "name": "義美_泡芙",
+    "id": "Yi_Mei_Pao_Fu"
+  },
+  {
+    "category": "alcohol",
+    "price": 230,
+    "lastUpdate": "2026-01-05T05:44:31.674000+00:00",
+    "stock": 100,
+    "name": "玉泉",
+    "id": "Yu_Quan_Jiu"
+  },
+  {
+    "category": "food",
+    "price": 50,
+    "lastUpdate": "2026-01-05T05:44:31.674000+00:00",
+    "stock": 100,
+    "name": "紅燒鰻",
+    "id": "raised_Eel_Red"
+  }
+]

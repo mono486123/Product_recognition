@@ -1,12 +1,18 @@
 import sqlite3
 import json
 import os
+from dotenv import load_dotenv
 
-# 1. 設定路徑 (保持您的自定義路徑)
-BASE_PATH = r'D:\product_recognition\04_App_Dev\Firebase__database_download'
+# 1. 載入環境變數
+load_dotenv()
+
+
+# 🚩 演習重點：不將絕對路徑寫死，透過 .env 讀取基礎目錄
+BASE_PATH = os.getenv('BASE_SAVE_PATH', r'D:\product_recognition\04_App_Dev\Firebase__database_download')
 PRODUCTS_JSON = os.path.join(BASE_PATH, 'products.json')
 SALES_JSON = os.path.join(BASE_PATH, 'sales.json')
 DB_FILE = os.path.join(BASE_PATH, "grocery_system.db")
+
 
 def init_sql_database():
     # 建立或連接到資料庫檔

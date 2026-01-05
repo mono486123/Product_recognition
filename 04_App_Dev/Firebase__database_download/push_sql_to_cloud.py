@@ -2,17 +2,28 @@ import sqlite3
 import firebase_admin
 from firebase_admin import credentials, firestore
 import os
+from dotenv import load_dotenv
 
-# 1. 設定路徑
-# 確保 serviceAccountKey.json 檔案與此程式在同一目錄，或填入絕對路徑
-SERVICE_ACCOUNT_PATH = r"D:\product_recognition\04_App_Dev\Firebase__database_download\serviceAccountKey.json"
-DB_FILE = r'D:\product_recognition\04_App_Dev\Firebase__database_download\grocery_system.db'
+# 1. 載入環境變數
+load_dotenv()
+
+
+# 🚩 演習重點：從環境變數讀取金鑰路徑與資料庫路徑
+SERVICE_ACCOUNT_PATH = os.getenv('FIREBASE_KEY_PATH', r"D:\product_recognition\04_App_Dev\serviceAccountKey.json")
+DB_FILE = os.getenv('DB_PATH', r'D:\product_recognition\04_App_Dev\Firebase__database_download\grocery_system.db')
+
 
 # 2. 初始化 Firebase
 if not firebase_admin._apps:
-    cred = credentials.Certificate(SERVICE_ACCOUNT_PATH)
-    firebase_admin.initialize_app(cred)
+    if SERVICE_ACCOUNT_PATH and os.path.exists(SERVICE_ACCOUNT_PATH):
+        # 🚩 修正：確保使用變數而非硬編碼字串
+        cred = credentials.Certificate(SERVICE_ACCOUNT_PATH)
+        firebase_admin.initialize_app(cred)
+    else:
+        print(f"❌ 錯誤：找不到金鑰檔案 {SERVICE_ACCOUNT_PATH}")
+        exit()
 
+        
 db = firestore.client()
 
 def push_sql_to_cloud():
