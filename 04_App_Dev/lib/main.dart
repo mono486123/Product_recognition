@@ -114,15 +114,30 @@ Future<void> _loadProductData() async {
 
           for (var doc in snapshot.docs) {
             final data = doc.data();
-            String id = doc.id; // 文件 ID 作為產品 ID
+            String id = doc.id; 
             String name = data['name'] ?? "未命名";
-            int price = (data['price'] is int) ? data['price'] : (int.tryParse(data['price'].toString()) ?? 0);
+            
+            // --- 修正後的解析邏輯 ---
+            // 1. 先從 Map 取得原始資料
+            var rawPrice = data['price'];
+            int price = 0;
+          
+            if (rawPrice is num) {
+              // 如果是數字型別 (int 或 double)，直接轉 int
+              price = rawPrice.toInt();
+            } else if (rawPrice is String) {
+              // 如果是字串，先試著轉成 double (處理 "180.0" 這種狀況) 再轉 int
+              price = double.tryParse(rawPrice)?.toInt() ?? 0;
+            }
+            // -----------------------
+          
             String category = (data['category'] ?? "food").toLowerCase().trim();
-
+          
             productDatabase[id] = price;
             labelTranslation[id] = name;
             productCategoryMap[id] = category;
           }
+
           _isDataLoaded = true;
         });
       });

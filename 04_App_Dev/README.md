@@ -172,6 +172,129 @@ ls -lh "/mnt/d/product_recognition/04_App_Dev/assets/models/best_float32.tflite"
 
 
 
+
+
+### - **1/5：Firebase 雲端與線下整合原理**:
+
+
+```
+
+今天我們針對您的 Flutter AI 雜貨店收銀系統 進行了深入的開發與除錯，以下為您整理今日的學習重點、問題核心以及解決方案：
+
+1. 今日核心學習：雲端與 AI 的整合原理
+即時資料同步 (Real-time Sync)：我們將原本靜態的 products.json 轉向 Firebase Firestore。利用 snapshots().listen() 建立長連接，達成「雲端改價格，手機即時更新」的機制，解決了傳統 App 需要重啟才能更新資訊的痛點。
+
+原子性操作 (Atomic Operations)：學習到在結帳時必須使用 WriteBatch 或 Transaction。這確保了「更新庫存」與「記錄銷售」這兩個動作會同時成功或同時失敗，防止資料庫出現帳目不一致的情況。
+
+標籤金鑰媒合 (Tag-ID Matching)：理解到 AI 辨識出的 tag（例如 marinated_meat）就是連結雲端資料庫的關鍵 Key，兩者的字串必須完全一致才能正確抓取資料。
+
+2. 重點問題回顧：為什麼「醃製肉」價格顯示為 0？
+這是今天最關鍵的技術卡關點，原因在於 資料型別不匹配 (Type Mismatch)：
+
+問題根源：Firestore 儲存數字時可能以 double 格式（如 180.0）傳回，而原始程式碼使用 int.tryParse() 處理字串。當 int.tryParse("180.0") 解析失敗傳回 null 時，程式觸發了預設值 ?? 0。
+
+原理點撥：在 Flutter 中，num 是所有數字的父類別。處理來自外部（API 或資料庫）的金額資料時，最安全的方式是先轉為 num 再轉 int。
+
+3. 實作方法與程式碼精華
+我們優化了 _loadProductData 的解析邏輯，使其能應對各種格式的價格輸入：
+
+Dart
+
+// 強健的價格解析邏輯
+var rawPrice = data['price'];
+int price = 0;
+
+if (rawPrice is num) {
+  price = rawPrice.toInt(); // 處理 int 或 double
+} else if (rawPrice is String) {
+  price = double.tryParse(rawPrice)?.toInt() ?? 0; // 處理 "180.0" 這種字串
+}
+4. 結帳與庫存控制邏輯
+針對您提供的 marinated_meat 商品，我們實作了自動扣庫存的功能：
+
+步驟一：點擊結帳時，透過 batch.update 執行 FieldValue.increment(-item.quantity)。
+
+步驟二：同步寫入一筆 sales 文件，記錄該次交易的時間與品項。
+
+步驟三：結帳完成後自動清空購物車並返回主頁面。
+
+
+
+```
+-------------
+
+
+
+### - **1/5：本地SQL使用規則**:
+
+
+```
+
+在資料庫管理中，最核心的指令統稱為 CRUD（Create, Read, Update, Delete）。針對您目前開發的商品系統（如 marinated_meat），若未來需要從 Flutter 直接操作 SQL 資料庫或在後台管理數據，以下是常用的標準 SQL 語法分類與解釋：
+
+1. 查詢 (Read) - SELECT
+這是最常用的指令，用於從資料庫中提取資料。
+
+查詢所有欄位： SELECT * FROM products;
+
+查詢特定欄位並過濾條件（例如找出價格大於 100 的商品）： SELECT name, price FROM products WHERE price > 100;
+
+模糊搜尋（例如搜尋名稱包含「肉」的商品）： SELECT * FROM products WHERE name LIKE '%肉%';
+
+排序（依價格從高到低）： SELECT * FROM products ORDER BY price DESC;
+
+2. 新增 (Create) - INSERT
+用於將新商品（如您的醃製肉）放入資料庫。
+
+基本新增： INSERT INTO products (id, name, price, stock, category) VALUES ('marinated_meat', '醃製肉', 180, 10, 'food');
+
+3. 修改 (Update) - UPDATE
+用於更新現有資料（例如調整價格或扣除庫存）。
+
+更新價格： UPDATE products SET price = 200 WHERE id = 'marinated_meat';
+
+扣除庫存（結帳時常用）： UPDATE products SET stock = stock - 1 WHERE id = 'marinated_meat'; 注意：務必加上 WHERE 條件，否則全資料庫的商品都會被修改。
+
+4. 刪除 (Delete) - DELETE
+用於移除不再販售的商品。
+
+刪除特定商品： DELETE FROM products WHERE id = 'marinated_meat';
+
+5. 進階彙整功能 (Aggregation)
+在進行報表分析（如您的 sales 紀錄）時非常有用：
+
+計算總金額 (SUM)： SELECT SUM(total_amount) FROM sales;
+
+計算商品種類數量 (COUNT)： SELECT COUNT(*) FROM products;
+
+分類統計 (GROUP BY)（統計各類別的商品平均價格）： SELECT category, AVG(price) FROM products GROUP BY category;
+
+6. 為什麼您的系統現在沒用到這些？
+從您提供的 main.dart 程式碼來看，您目前使用的是 NoSQL (Cloud Firestore) 而非關聯式資料庫 (SQL)。
+
+NoSQL (Firestore)：使用集合 (Collections) 與文件 (Documents)，操作語法是 collection('products').doc(id).update(...)。
+
+SQL (如 SQLite/MySQL)：使用資料表 (Tables) 與列 (Rows)，操作語法即是上述的 SELECT/UPDATE。
+
+解關建議： 如果您是為了單機儲存或更大型的後台分析才學習 SQL，可以參考 sqflite 套件。但在目前的 Firebase 架構下，您只需要掌握 Firestore 的 get(), set(), update(), delete() 方法即可對應上述 SQL 的邏輯。
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 ---
 
 ## 💻 管理端系統

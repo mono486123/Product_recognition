@@ -1,3 +1,6 @@
+
+#請使用streamlit run "D:\product_recognition\04_App_Dev\admin_dashboard.py"
+
 import streamlit as st
 import firebase_admin
 from firebase_admin import credentials, firestore
@@ -11,7 +14,7 @@ if not firebase_admin._apps:
 db = firestore.client()
 
 st.set_page_config(page_title="雜貨店雲端後台", layout="wide")
-st.title("🏬 雜貨店管理員後台")
+st.title("🏬 雜貨店管理員後台") 
 
 # --- 側邊欄：功能導航 ---
 menu = st.sidebar.selectbox("功能選單", ["庫存管理", "銷售統計", "AI 辨識分析"])

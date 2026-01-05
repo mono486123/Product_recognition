@@ -63,6 +63,8 @@ Data/Product_top10/
 04_App_Dev/new_project/android/
 04_App_Dev/new_project/build/
 04_App_Dev/new_project/Flutter/
+04_App_Dev/Firebase__database_download/serviceAccountKey.json
+04_App_Dev/Firebase__database_download/firebase.json
 
 # 萬用匹配 (確保漏網之魚)
 .dart_tool/
