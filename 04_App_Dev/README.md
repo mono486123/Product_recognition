@@ -421,4 +421,53 @@ DB_PATH=grocery_system.db
 
 ---
 
-Would you like me to help you format the Python admin dashboard script or the Flutter detection service code to match this documentation?
+
+
+
+
+
+
+
+
+
+
+### - **1/7：更新並優化手機端(正式發布)**:
+```
+
+一、 App 核心功能優化 (Flutter & AI)
+
+啟動流程：原本設有管理密碼（xxxx），現已註解掉改為直接啟動以利個人使用，但保留代碼供日後開啟。
+
+AI 辨識系統：補全了 _takePhotoAndAIProcess 方法。流程為：拍照 $\rightarrow$ 轉位元組 $\rightarrow$ AI 推論 $\rightarrow$ 標籤比對 $\rightarrow$ 自動加入購物車。
+
+購物車邏輯：實現了分類搜尋與手動增減，並包含特殊的米酒空瓶折抵功能（每瓶自動折 2 元）。
+
+二、 Firebase 雲端架構與安全 (關鍵突破)
+
+實時同步：利用 Firestore snapshots() 監聽，達成「雲端改價，手機秒更新」。
+
+安全規則 (Security Rules) 修正：
+
+解決卡關：修正了原本禁止寫入導致「扣庫存失敗」的問題。
+
+精準授權：設定規則為「允許更新庫存，但嚴禁更改價格與品名」，確保前端無法竄改售價。
+
+原子性交易：使用 WriteBatch 確保「帳單產生」與「庫存扣除」必須同時成功，防止帳目不符。
+
+三、 Android 打包與發佈安全
+
+權限修正：在 AndroidManifest.xml 中補上 INTERNET 權限，解決 Firebase 連線失敗的問題。
+
+安全打包：使用 --obfuscate (代碼混淆) 指令，防止程式邏輯被逆向工程破解。
+
+版本區分：釐清了 Debug 模式（開發除錯用）與 Release 模式（正式店內使用）的差異。
+
+四、 視覺自定義 (App Icon)
+
+路徑報錯修復：修正了 Windows 路徑反斜線 \ 造成的 YAML 解析錯誤。
+
+圖示生成：使用 flutter_launcher_icons 成功生成 Android 圖標，並關閉了 iOS 報錯。
+
+適應性圖標：設定了 adaptive_icon 的前景與背景，確保在 realme GT 等現代手機上圖示不失真。
+
+```
