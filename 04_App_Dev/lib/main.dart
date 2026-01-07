@@ -226,19 +226,35 @@ Future<void> _loadProductData() async {
     });
   }
 
+  // 在 _GroceryMainPageState 類別內修改此方法
   void _applyBottleDiscount() {
     bool hasChanged = false;
+    
+    // 定義米酒 ID 清單，方便以後擴充
+    const riceWineIds = [
+      "Red_Label_Rice_Wine_22_Large", 
+      "Red_Label_Rice_Wine_Cooking"
+    ];
+  
     setState(() {
       for (var item in _cartItems) {
-        if (item.id == "Red_Label_Rice_Wine_22_Large" || item.id == "Red_Label_Rice_Wine_Cooking") {
+        if (riceWineIds.contains(item.id)) {
+          // 核心邏輯：只有當「當前價格」等於「原始價格」時才扣錢
+          // 這樣重複按按鈕，價格也不會一直掉下去
           if (item.currentPrice == item.originalPrice) {
-             item.currentPrice = item.originalPrice - 2;
-             hasChanged = true;
+            item.currentPrice = item.originalPrice - 2; // 折抵 2 元
+            hasChanged = true;
           }
         }
       }
     });
-    if (hasChanged) _showSimpleSnackBar("✅ 已套用米酒折抵");
+  
+    if (hasChanged) {
+      _showSimpleSnackBar("✅ 已套用米酒空瓶折抵 (每瓶折2元)");
+    } else {
+      // 如果購物車沒米酒，或都已經折抵過了
+      _showSimpleSnackBar("ℹ️ 無可折抵項目或已完成折抵");
+    }
   }
 
   void _showSimpleSnackBar(String msg) {

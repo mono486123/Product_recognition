@@ -303,6 +303,98 @@ SQL (如 SQLite/MySQL)：使用資料表 (Tables) 與列 (Rows)，操作語法�
 
 
 
+
+
+
+
+
+
+
+# **1/5：資安防護教學**:
+
+
+針對您目前的資產防護演習進度，撰寫一份高品質的 `README.md` 不僅能紀錄技術細節，更是業界展現專案開發規範（Best Practices）的重要環節。
+
+根據您上傳的檔案結構與目前的修改進度，以下是為您建議的 `README.md` 內容框架：
+
+---
+
+# 🏬 雜貨店商品辨識系統 - 後端管理與資料同步 (Security Practice)
+
+本專案為雜貨店收銀系統的後台管理與雲端同步模組，目前已完成核心資安防護演習，導入環境變數管理機制以保護敏感憑證。
+
+## 🛡️ 資安防護實施說明 (Security Enhancements)
+
+在本階段的開發中，我們實施了以下資安強化措施：
+
+* **憑證與代碼分離 (Decoupling)**：不再將 `serviceAccountKey.json` 路徑硬編碼於 Python 程式碼中。
+* **環境變數管理**：導入 `python-dotenv` 套件，透過 `.env` 檔案管理資料庫路徑與 Firebase 金鑰路徑。
+* **版控過濾**：配置 `.gitignore` 檔案，嚴格禁止敏感設定檔（`.env`）與金鑰檔案流向遠端儲存庫。
+* **預防 SQL 注入**：本地資料庫操作全面採用參數化查詢，確保資料匯入安全性。
+
+## 📂 腳本功能清單
+
+| 檔案名稱 | 功能描述 |
+| --- | --- |
+| `admin_dashboard.py` | 基於 Streamlit 的管理員後台，提供即時庫存監控與銷售統計。 |
+| `push_sql_to_cloud.py` | 將本地 SQLite 資料庫的產品資訊同步推播至 Firebase Firestore。 |
+| `Cloud pullback.py` | 從 Firebase 抓取最新的產品與銷售資料，並轉存為本地 JSON 快照。 |
+| `json_to_sql.py` | 負責將拉取回來的 JSON 資料清理並匯入本地 `grocery_system.db`。 |
+
+## 🚀 環境設定步驟
+
+1. **安裝依賴套件**：
+```bash
+pip install firebase-admin streamlit pandas python-dotenv
+
+```
+
+
+2. **配置環境變數**：
+於 `04_App_Dev/Firebase__database_download/` 目錄下建立 `.env` 檔案，範例如下：
+```text
+FIREBASE_KEY_PATH=serviceAccountKey.json
+BASE_SAVE_PATH=D:/你的路徑/Firebase__database_download
+DB_PATH=grocery_system.db
+
+```
+
+
+3. **放入金鑰**：
+將從 Firebase Console 下載的 `serviceAccountKey.json` 放入指定目錄。
+
+## 📈 運作流程圖
+
+1. `Cloud pullback.py` → 取得雲端 JSON。
+2. `json_to_sql.py` → 轉換 JSON 為 SQL。
+3. `admin_dashboard.py` → 管理員視讀與編輯。
+4. `push_sql_to_cloud.py` → 將變動推回雲端。
+
+---
+
+### 會建議寫很多嗎？
+
+在業界，`README.md` 的長短取決於「**誰會看這份檔案**」。
+
+* **如果是個人試作**：寫出**環境設定步驟**（如上方的步驟 1~3）最重要，因為三個月後你一定會忘記怎麼啟動環境。
+* **如果是求職作品**：寫出**資安防護思路**（Security Enhancements）最有價值，這能向面試官證明你具備處理敏感資料的職業素養。
+
+### 您需要我幫您補充哪一個部分？
+
+------------------------------------------------------------
+---------------------------
+-----------
+
+
+
+
+
+
+
+
+
+
+
 ---
 
 ## 💻 管理端系統
@@ -322,7 +414,6 @@ SQL (如 SQLite/MySQL)：使用資料表 (Tables) 與列 (Rows)，操作語法�
 
 
 
----
 
 ## 🚀 專案總結
 
